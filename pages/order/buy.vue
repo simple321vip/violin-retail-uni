@@ -20,7 +20,7 @@
 				<text class="cuIcon-circlefill text-black padding-left-sm">{{ ' 时间' }}</text>
 				<text class="text-black">2023-11-03</text>
 			</view>
-			<view class="cu-item padding-sm">
+			<view class="cu-item padding-sm" @click="openCustomerSelecter">
 				<text class="cuIcon-circlefill text-black padding-left-sm">{{ ' 客户' }}</text>
 				<text class="text-black">{{ ' 未选择' }}</text>
 			</view>
@@ -94,6 +94,7 @@
 </template>
 
 <script>
+	import { Request } from "../../api/request.js"
 	export default {
 		data() {
 			return {
@@ -124,8 +125,23 @@
 						price: 230,
 						total: 690,
 					},
-				]
+				],
 			}
+		},
+		created() {
+			// Request({
+			// 	url: '/api/v1/customers',
+			// 	method: 'GET',
+			// 	header: {
+			// 		'Content-Type': 'application/json'
+			// 	}
+			// }).then(res => {
+			// 	if (res) {
+			// 		customers = res.data.Data
+			// 	}
+			// }).finally(e => {
+			// 	console.log(e)
+			// })
 		},
 		methods: {
 			showModal(e) {
@@ -134,6 +150,11 @@
 			onClicksaveCustomer() {
 				uni.navigateBack({
 					url: '/pages/order/index'
+				})
+			},
+			openCustomerSelecter() {
+				uni.navigateTo({
+					url: '/pages/customer/index?mode=1'
 				})
 			}
 		}

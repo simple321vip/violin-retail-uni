@@ -4,7 +4,7 @@
 		<scroll-view :scroll-y="modalName==null" class="page" :class="modalName!=null?'show':''">
 			<cu-custom bgColor="bg-gradual-pink" :isBack="true">
 				<block slot="backText">返回</block>
-				<block slot="content">客户</block>
+				<block slot="content">{{ contentText }}</block>
 				<block slot="right">
 					<!-- <uni-icons :type="item.name" :color="activeIndex === index?'#007aff':'#5e6d82'" size="30" /> -->
 					<!-- <uni-icons type="arrow-down" color="#5e6d82" size="30" /> -->
@@ -19,11 +19,11 @@
 				</view>
 			</view>
 			<view class="cu-list menu-avatar">
-				<view class="cu-item" :class="modalName=='move-box-'+ index?'move-cur':''" v-for="(item,index) in 20" :key="index"
+				<view class="cu-item" :class="modalName=='move-box-'+ index?'move-cur':''" v-for="(item,index) in customers" :key="index"
 				 @touchstart="ListTouchStart" @touchmove="ListTouchMove" @touchend="ListTouchEnd" :data-target="'move-box-' + index">
 					<view class="cu-avatar round lg" :style="[{backgroundImage:'url(https://ossweb-img.qq.com/images/lol/web201310/skin/big2100'+ (index+2) +'.jpg)'}]"></view>
 					<view class="content">
-						<view class="text-grey">文晓港</view>
+						<view class="text-grey">{{ item.Name }}</view>
 						<view class="text-gray text-sm">
 							<text class="cuIcon-infofill text-red  margin-right-xs"></text> 消息未送达</view>
 					</view>
@@ -41,10 +41,14 @@
     </view>
 </template>
 <script>
+	import { Request } from "../../api/request.js"
 	export default {
         name: "customer",
 		data() {
 			return {
+				mode: null, // 客户管理入口进入则为0，订单选择入口则为1
+				contentText: '', // 页面标题
+				customers: null, // 客户一览
 				cuIconList: [{
 					cuIcon: 'cardboardfill',
 					color: 'red',
@@ -93,6 +97,27 @@
 				listTouchStart: 0,
 				listTouchDirection: null,
 			};
+		},
+		onLoad(option) {
+			this.mode = option.mode
+			if (this.mode == "1") {
+				this.contentText = "客户选择"
+			}
+			if (this.mode == "0") {
+				this.contentText = "客户管理"
+			}
+		},
+		async created() {
+			let res = await Request({
+				url: '/api/v1/customers',
+				method: 'GET',
+				header: {
+					'Content-Type': 'application/json'
+				}
+			})
+			if (res) {
+				this.customers = res.data.Data
+			}
 		},
 		methods: {
 			showModal(e) {
