@@ -22,7 +22,7 @@
 			</view>
 			<view class="cu-item padding-sm" @click="openCustomerSelecter">
 				<text class="cuIcon-circlefill text-black padding-left-sm">{{ ' 客户' }}</text>
-				<text class="text-black">{{ ' 未选择' }}</text>
+				<text class="text-black">{{ customer != null ? customer.Name : '未选择' }}</text>
 			</view>
 		</view>
 		<view class="cu-list menu bg-white flex shadow">
@@ -56,7 +56,7 @@
 				<view class="action">
 					<text class="text-black">扫码添加</text> 
 				</view>
-				<view class="action">
+				<view class="action" @click="openGoodsSelecter">
 					<text class="text-black margin-right-sm">{{ '添加商品' }}</text>
 				</view>
 			</view>
@@ -96,6 +96,7 @@
 <script>
 	import { Request } from "../../api/request.js"
 	export default {
+		name: "buy",
 		data() {
 			return {
 				menuBorder: false,
@@ -126,6 +127,7 @@
 						total: 690,
 					},
 				],
+				customer: null
 			}
 		},
 		created() {
@@ -156,7 +158,15 @@
 				uni.navigateTo({
 					url: '/pages/customer/index?mode=1'
 				})
-			}
+			},
+			openGoodsSelecter() {
+				uni.navigateTo({
+					url: '/pages/goods/index?mode=1'
+				})
+			},
+			setCustomer(customer) {
+				this.customer = customer
+			},
 		}
 	}
 </script> 

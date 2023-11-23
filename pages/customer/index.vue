@@ -19,7 +19,7 @@
 				</view>
 			</view>
 			<view class="cu-list menu-avatar">
-				<view class="cu-item" :class="modalName=='move-box-'+ index?'move-cur':''" v-for="(item,index) in customers" :key="index"
+				<view class="cu-item" :class="modalName=='move-box-'+ index?'move-cur':''" v-for="(item, index) in customers" :key="index" @click="onClick(item)"
 				 @touchstart="ListTouchStart" @touchmove="ListTouchMove" @touchend="ListTouchEnd" :data-target="'move-box-' + index">
 					<view class="cu-avatar round lg" :style="[{backgroundImage:'url(https://ossweb-img.qq.com/images/lol/web201310/skin/big2100'+ (index+2) +'.jpg)'}]"></view>
 					<view class="content">
@@ -168,6 +168,26 @@
 				uni.navigateTo({
 					url: '/pages/customer/add'
 				})
+			},
+			onClick(customer) {
+				let pages = getCurrentPages()
+				console.log(pages.length)
+				let nowPage = pages[pages.length -1] // 当前页实例
+				let prevPage = pages[pages.length -2] // 上一页面实例
+				// 需要返回 上一页的数据 Object
+
+				
+				if (this.mode == "1") {
+					prevPage.$refs.buy.setCustomer(customer)
+					// 返回 上一页
+					uni.navigateBack({
+						delta:1 ,// 可以不写，默认值为 1
+					})
+				}
+				// }
+				// if (this.mode == "0") {
+				// 	this.contentText = "客户管理"
+				// }
 			}
 		}
 	}

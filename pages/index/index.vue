@@ -3,7 +3,7 @@
 		<home v-if="PageCur=='home'"></home>
 		<goods v-if="PageCur=='goods'"></goods>
 		<basics v-if="PageCur=='basics'"></basics>
-		<buy v-if="PageCur=='buy'"></buy>
+		<buy v-if="PageCur=='buy'" ref="buy"></buy>
 		<components v-if="PageCur=='component'"></components>
 		<order v-if="PageCur=='order'"></order>
 		
@@ -58,7 +58,7 @@
 		methods: {
 			NavChange: function(e) {
 				this.PageCur = e.currentTarget.dataset.cur
-			}
+			},
 		}
 	}
 </script>

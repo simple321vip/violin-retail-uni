@@ -66,6 +66,7 @@
 
 <script>
 	export default {
+		name: "order",
 		data() {
 			return {
 				CustomBar: this.CustomBar,

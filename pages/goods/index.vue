@@ -1,7 +1,7 @@
 <template>
 	<view class="bg-gradual-light-blue order-index">
 		<cu-custom bgColor="bg-gradual-blue" :isBack="true">
-			<block slot="content">商品</block>
+			<block slot="content">{{ contentText }}</block>
 			<block slot="right">
 				<text class="text-xsl text-white cuIcon-plus"></text>
 			</block>
@@ -60,6 +60,8 @@
 				CustomBar: this.CustomBar,
 				TabCur: 0,
 				shadow: false,
+				mode: null, // 商品管理入口进入则为0，订单选择入口则为1
+				contentText: '', // 页面标题
 				GoodsList: [
 					{
 						name: '钻石板',
@@ -196,6 +198,15 @@
 					},
 				]
 			};
+		},
+		onLoad(option) {
+			this.mode = option.mode
+			if (this.mode == "1") {
+				this.contentText = "商品选择"
+			}
+			if (this.mode == "0") {
+				this.contentText = "商品管理"
+			}
 		},
 		created() {
 			uni.request({
