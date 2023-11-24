@@ -4,7 +4,7 @@
 			<block slot="backText">返回</block>
 			<block slot="content">开单</block>
 			<block slot="right">
-				<view class="action" @click="onClicksaveCustomer">
+				<view class="action" @click="openPrint">
 					打印
 				</view>
 			</block>
@@ -34,22 +34,22 @@
 					<text class="text-black margin-right-sm">{{ '合计： 300，000' }}</text>
 				</view>
 			</view>
-			<view class="flex padding align-start margin-left-sm" v-for="(item,index) in GoodList" :key="index" style="border-color: black;border-top:1px solid lightgray;">
+			<view class="flex padding align-start margin-left-sm" v-for="(item,index) in order.OrderProducts" :key="index" style="border-color: black;border-top:1px solid lightgray;">
 				<view class="padding-top-sm flex-sub" style="display: flex;flex-direction: column;border-right:1px solid lightgray;">
 					<text class="text-black">{{ index + 1 }}</text>
 				</view>
 				<view class="margin-xs radius flex-sub" style="display: flex;flex-direction: column;">
-					<text class="text-black padding-bottom-sm">{{ item.label }}</text>
-					<text class="text-black">{{ item.name }}</text>
+					<text class="text-black padding-bottom-sm">{{ item.Name }}</text>
+					<text class="text-black">{{ item.Name }}</text>
 				</view>
 				<view class="margin-xs padding-left-sm padding-right-sm flex-treble" style="display: flex; flex-direction: column;border-left:1px solid lightgray;border-right:1px solid lightgray;">
-					<text class="text-black">{{ '颜色：' + item.color }}</text>
-					<text class="text-black">{{ '数量：' + item.mount }}</text>
-					<text class="text-black">{{ '单价：' + item.price }}</text>
+					<!-- <text class="text-black">{{ '颜色：' + item.Color.Name }}</text> -->
+					<text class="text-black">{{ '数量：' + item.Quantity }}</text>
+					<text class="text-black">{{ '单价：' + item.RetailPrice }}</text>
 				</view>
 				<view class="margin-xs radius flex-sub align-end" style="display: flex; flex-direction: column;">
-					<text class="text-black margin-bottom-sm">{{ '总计' }}</text>
-					<text class="text-black">{{ item.price }}</text>
+					<text class="text-black margin-bottom-sm">{{ item.Quantity * item.RetailPrice }}</text>
+					<text class="text-black">{{ item.RetailPrice }}</text>
 				</view>
 			</view>
 			<view class="cu-bar">
@@ -84,7 +84,7 @@
 			</view>
 		</view>
 		<view class="padding-xl">
-			<button class="cu-btn block line-orange lg">
+			<button class="cu-btn block line-orange lg" @click="saveOrder">
 				<text class="cuIcon-upload"></text> 保存</button>
 			<button class="cu-btn block bg-blue margin-tb-sm lg">
 				<text class="cuIcon-loading2 cuIconfont-spin"></text> 生成支付码</button>
@@ -107,27 +107,19 @@
 				TabCur: 0,
 				avatar:['https://ossweb-img.qq.com/images/lol/web201310/skin/big10001.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big81005.jpg'],
 				tabNav: ['出货', '退货'],
-				GoodList: [
-					{
-						name: '实木版',
-						category: '地板',
-						label: '兔宝宝',
-						color: '橡木色',
-						mount: 5,
-						price: 200,
-						total: 1000,
-					},
-					{
-						name: '实木版',
-						category: '地板',
-						label: '兔宝宝',
-						color: '桦木色',
-						mount: 3,
-						price: 230,
-						total: 690,
-					},
-				],
-				customer: null
+				customer: null,
+				order: {
+					ID: null,
+					CustomerID: null,
+					OrderType: null,
+					OrderProducts: [],
+					AccountsReceivable: null,
+					ActualAccountsReceivable: null,
+					ActualRefund: null,
+					Refund: null,
+					Freight: null,
+					Comment: null
+				}
 			}
 		},
 		created() {
@@ -149,7 +141,7 @@
 			showModal(e) {
 				this.modalName = e.currentTarget.dataset.target
 			},
-			onClicksaveCustomer() {
+			openPrint() {
 				uni.navigateBack({
 					url: '/pages/order/index'
 				})
@@ -166,7 +158,27 @@
 			},
 			setCustomer(customer) {
 				this.customer = customer
+				this.order.CustomerID = customer.ID
 			},
+			setProduct(product) {
+				this.order.OrderProducts.push(product)
+				console.log(product)
+			},
+			saveOrder() {
+				let res = Request({
+					url: '/api/v1/order',
+					method: 'POST',
+					header: {
+						'Content-Type': 'application/json'
+					},
+					data: {
+						order: this.order
+					}
+				})
+				if (res) {
+					this.Goods = res.data.Data
+				}
+			}
 		}
 	}
 </script> 

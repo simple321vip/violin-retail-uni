@@ -175,9 +175,9 @@
 				let nowPage = pages[pages.length -1] // 当前页实例
 				let prevPage = pages[pages.length -2] // 上一页面实例
 				// 需要返回 上一页的数据 Object
-
 				
 				if (this.mode == "1") {
+					// 由于 上一页面是首页，而buy页面是子元素，我们通过添加refs 找到buy元素来回调
 					prevPage.$refs.buy.setCustomer(customer)
 					// 返回 上一页
 					uni.navigateBack({

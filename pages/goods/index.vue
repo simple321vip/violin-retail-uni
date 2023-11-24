@@ -26,10 +26,10 @@
 		<scroll-view :class="modalName!=null?'show':''" :style="[{'margin-top': '250px', 'padding-left': '10px', 'padding-right': '10px'}]">
 			<block v-if="TabCur==0" >
 				<view class="cu-list menu-avatar">
-					<view class="cu-item" v-for="(item, index) in GoodsList" :key="index">
+					<view class="cu-item" v-for="(item, index) in Goods" :key="index" @click="onSelectProduct(item)">
 						<view class="cu-avatar lg" style="background-image:url(https://ossweb-img.qq.com/images/lol/web201310/skin/big10001.jpg);"></view>
 						<view class="content">
-							<view class="text-grey">{{ item. name}}</view>
+							<view class="text-grey">{{ item.Name }}</view>
 							<view class="text-gray text-sm flex">
 								<view class="text-cut">
 									<text class="text-black margin-right-xs"></text>
@@ -37,13 +37,13 @@
 								</view> 
 								<view class="text-cut">
 									<text class="text-black margin-right-xs"></text>
-									{{ '零售价:' + item.kucun }}
+									{{ '零售价:' + item.RetailPrice }}
 								</view> 
 							</view>
 								
 						</view>
 						<view class="action">
-							<view class="text-grey text-xs">库存</view>
+							<view class="text-grey text-xs">{{ item.StockQuantity }}</view>
 							<view class="cu-tag round bg-grey sm">10</view>
 						</view>
 					</view>
@@ -54,6 +54,7 @@
 </template>
 
 <script>
+	import { Request } from "../../api/request.js"
 	export default {
 		data() {
 			return {
@@ -62,18 +63,7 @@
 				shadow: false,
 				mode: null, // 商品管理入口进入则为0，订单选择入口则为1
 				contentText: '', // 页面标题
-				GoodsList: [
-					{
-						name: '钻石板',
-						label: '兔宝宝',
-						kucun: 10,
-					},
-					{
-						name: '合成门',
-						label: '全有',
-						kucun: 10,
-					}
-				],
+				Goods: null,
 				CategoryList: [
 					{
 						name: '木门',
@@ -156,47 +146,7 @@
 				modalName: null,
 				avatar:['https://ossweb-img.qq.com/images/lol/web201310/skin/big10001.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big81005.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big25002.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big99008.jpg'],
 				tabNav: ['出货', '退货'],
-				DateOrderList: [
-					{
-						date: '2023-11-01',
-						OrderList: [
-							{
-								name: '管祥玮',
-								money: '1,000'
-							},
-							{
-								name: '许家印',
-								money: '1,500'
-							}
-						]
-					},
-					{
-						date: '2023-11-02',
-						OrderList: [
-							{
-								name: '管祥玮',
-								money: '2,000'
-							},
-							{
-								name: '张晓东',
-								money: '3,500'
-							}
-						]
-					},
-					{
-						date: '2023-11-03',
-						OrderList: [
-							{
-								name: '小梦',
-								money: '3,000'
-							},
-							{
-								name: '西西里',
-								money: '5,000'
-							}
-						]
-					},
-				]
+			
 			};
 		},
 		onLoad(option) {
@@ -208,18 +158,17 @@
 				this.contentText = "商品管理"
 			}
 		},
-		created() {
-			uni.request({
-				url: 'http://localhost:8080/finance/api/v1/order',
+		async created() {
+			let res = await Request({
+				url: '/api/v1/goods',
 				method: 'GET',
 				header: {
 					'Content-Type': 'application/json'
 				}
-			}).then(res => {
-				console.log(res)
-			}).finally(e => {
-				console.log(e)
 			})
+			if (res) {
+				this.Goods = res.data.Data
+			}
 		},
 		methods: {
 			tabSelect(e) {
@@ -234,6 +183,20 @@
 			searchIcon(e) {
 				let key = e.detail.value.toLowerCase();
 				console.log(e)
+			},
+			onSelectProduct(product) {
+				let pages = getCurrentPages()
+				let prevPage = pages[pages.length - 2] // 上一页面实例
+				
+				if (this.mode == "1") {
+					// 由于 上一页面是首页，而buy页面是子元素，我们通过添加refs 找到buy元素来回调
+					product.Quantity = 10
+					prevPage.$refs.buy.setProduct(product)
+					// 返回 上一页
+					uni.navigateBack({
+						delta:1 ,// 可以不写，默认值为 1
+					})
+				}
 			}
 		}
 	}
