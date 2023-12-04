@@ -64,6 +64,7 @@
 				mode: null, // 商品管理入口进入则为0，订单选择入口则为1
 				contentText: '', // 页面标题
 				Goods: null,
+				tabNav: ['出货', '退货'],
 				CategoryList: [
 					{
 						name: '木门',
@@ -145,8 +146,6 @@
 				OrderIndexHeight: '3000px',
 				modalName: null,
 				avatar:['https://ossweb-img.qq.com/images/lol/web201310/skin/big10001.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big81005.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big25002.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big99008.jpg'],
-				tabNav: ['出货', '退货'],
-			
 			};
 		},
 		onLoad(option) {

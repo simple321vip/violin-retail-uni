@@ -2,7 +2,7 @@
    <view class="bg-gradual-light-blue order-add">
 		<cu-custom bgColor="bg-gradual-blue" :isBack="true">
 			<block slot="backText">返回</block>
-			<block slot="content">开单</block>
+			<block slot="content">{{ contentText }}</block>
 			<block slot="right">
 				<view class="action" @click="openPrint">
 					打印
@@ -10,7 +10,7 @@
 			</block>
 		</cu-custom>
 		<scroll-view scroll-x class="bg-white nav text-center fixed" :style="[{top:CustomBar + 'px'}]">
-			<view class="cu-item" :class="index==TabCur?'text-blue cur':''" v-for="(item,index) in tabNav" :key="index" @tap="tabSelect"
+			<view class="cu-item" :class="index==TabCur?'text-blue cur':''" v-for="(item,index) in tabNav" :key="index" @tap="tabSelect(index)"
 			 :data-id="index">
 				{{tabNav[index]}}
 			</view>
@@ -22,7 +22,7 @@
 			</view>
 			<view class="cu-item padding-sm" @click="openCustomerSelecter">
 				<text class="cuIcon-circlefill text-black padding-left-sm">{{ ' 客户' }}</text>
-				<text class="text-black">{{ customer != null ? customer.Name : '未选择' }}</text>
+				<text class="text-black">{{ this.order.customer != null ? this.order.customer.Name : '未选择' }}</text>
 			</view>
 		</view>
 		<view class="cu-list menu bg-white flex shadow">
@@ -95,6 +95,7 @@
 
 <script>
 	import { Request } from "../../api/request.js"
+	import { g } from "../../utils/constant.js"
 	export default {
 		name: "buy",
 		data() {
@@ -106,12 +107,13 @@
 				CustomBar: this.CustomBar,
 				TabCur: 0,
 				avatar:['https://ossweb-img.qq.com/images/lol/web201310/skin/big10001.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big81005.jpg'],
-				tabNav: ['出货', '退货'],
-				customer: null,
+				mode: g.SALE,
+				contentText: '开单',
+				tabNav: ['销售', '退货'],
 				order: {
 					ID: null,
-					CustomerID: null,
-					OrderType: null,
+					customer: null,
+					OrderType: 0,
 					OrderProducts: [],
 					AccountsReceivable: null,
 					ActualAccountsReceivable: null,
@@ -122,20 +124,18 @@
 				}
 			}
 		},
+		onLoad(option) {
+			if (option && option.mode === '1') {
+				this.mode = option.mode
+				this.contentText = '修改销售单'
+			}
+			if (option && option.mode === '1') {
+				this.mode = option.mode
+				this.contentText = '修改销售单'
+			}
+		},
 		created() {
-			// Request({
-			// 	url: '/api/v1/customers',
-			// 	method: 'GET',
-			// 	header: {
-			// 		'Content-Type': 'application/json'
-			// 	}
-			// }).then(res => {
-			// 	if (res) {
-			// 		customers = res.data.Data
-			// 	}
-			// }).finally(e => {
-			// 	console.log(e)
-			// })
+
 		},
 		methods: {
 			showModal(e) {
@@ -145,6 +145,9 @@
 				uni.navigateBack({
 					url: '/pages/order/index'
 				})
+			},
+			tabSelect(index) {
+				this.order.OrderType = index
 			},
 			openCustomerSelecter() {
 				uni.navigateTo({
@@ -157,26 +160,46 @@
 				})
 			},
 			setCustomer(customer) {
-				this.customer = customer
-				this.order.CustomerID = customer.ID
+				this.order.customer = customer
 			},
 			setProduct(product) {
 				this.order.OrderProducts.push(product)
-				console.log(product)
 			},
 			saveOrder() {
+				if (this.order.customer == null) {
+					uni.showToast({
+						title: '请选择客户',
+						duration: 2000
+					});
+					// uni.hideLoading()
+					return
+				}
+				if (this.order.OrderProducts == null || this.order.OrderProducts.length == 0) {
+					uni.showToast({
+						title: '请添加商品',
+						duration: 2000
+					});
+					return
+				}
+				
+				this.order.Comment = 'xxxxx'
 				let res = Request({
 					url: '/api/v1/order',
 					method: 'POST',
 					header: {
 						'Content-Type': 'application/json'
 					},
-					data: {
-						order: this.order
-					}
+					data: this.order
+				})
+				res.then(r => {
+					this.order.ID = r.data.Data
+					uni.navigateTo({
+						// object parameter
+						url: '/pages/order/detail?mode=0&order=' + encodeURIComponent(JSON.stringify(this.order))
+					})
 				})
 				if (res) {
-					this.Goods = res.data.Data
+					
 				}
 			}
 		}

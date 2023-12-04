@@ -65,6 +65,7 @@
 </template>
 
 <script>
+	import { Request } from "../../api/request.js"
 	export default {
 		name: "order",
 		data() {
@@ -95,60 +96,67 @@
 				avatar:['https://ossweb-img.qq.com/images/lol/web201310/skin/big10001.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big81005.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big25002.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big99008.jpg'],
 				tabNav: ['出货', '退货'],
 				DateOrderList: [
-					{
-						date: '2023-11-01',
-						OrderList: [
-							{
-								name: '管祥玮',
-								money: '1,000'
-							},
-							{
-								name: '许家印',
-								money: '1,500'
-							}
-						]
-					},
-					{
-						date: '2023-11-02',
-						OrderList: [
-							{
-								name: '管祥玮',
-								money: '2,000'
-							},
-							{
-								name: '张晓东',
-								money: '3,500'
-							}
-						]
-					},
-					{
-						date: '2023-11-03',
-						OrderList: [
-							{
-								name: '小梦',
-								money: '3,000'
-							},
-							{
-								name: '西西里',
-								money: '5,000'
-							}
-						]
-					},
+					// {
+					// 	date: '2023-11-01',
+					// 	OrderList: [
+					// 		{
+					// 			name: '管祥玮',
+					// 			money: '1,000'
+					// 		},
+					// 		{
+					// 			name: '许家印',
+					// 			money: '1,500'
+					// 		}
+					// 	]
+					// },
+					// {
+					// 	date: '2023-11-02',
+					// 	OrderList: [
+					// 		{
+					// 			name: '管祥玮',
+					// 			money: '2,000'
+					// 		},
+					// 		{
+					// 			name: '张晓东',
+					// 			money: '3,500'
+					// 		}
+					// 	]
+					// },
+					// {
+					// 	date: '2023-11-03',
+					// 	OrderList: [
+					// 		{
+					// 			name: '小梦',
+					// 			money: '3,000'
+					// 		},
+					// 		{
+					// 			name: '西西里',
+					// 			money: '5,000'
+					// 		}
+					// 	]
+					// },
 				]
 			};
 		},
 		created() {
-			uni.request({
-				url: 'http://localhost:8080/finance/api/v1/order',
+			Request({
+				url: '/api/v1/orders',
 				method: 'GET',
 				header: {
 					'Content-Type': 'application/json'
 				}
 			}).then(res => {
+				this.OrderList = res.data.Data
 				console.log(res)
-			}).finally(e => {
-				console.log(e)
+			}).catch(error => {
+				
+			}).finally(() => {
+				
 			})
+			// if (res) {
+			// 	console.log(res)
+			// 	// this.customers = res.data.Data
+			// }
 		},
 		methods: {
 			tabSelect(e) {

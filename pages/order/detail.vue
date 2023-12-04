@@ -12,11 +12,11 @@
 		<view class="cu-list bg-blue menu shadow">
 			<view class="cu-item padding-sm solid-bottom">
 				<text class="cuIcon-circlefill text-black padding-left-sm">{{ ' 时间' }}</text>
-				<text class="text-black">2023-11-03</text>
+				<text class="text-black">{{ order.OrderTime }}</text>
 			</view>
 			<view class="cu-item padding-sm">
 				<text class="cuIcon-circlefill text-black padding-left-sm">{{ ' 客户' }}</text>
-				<text class="text-black">观想为</text>
+				<text class="text-black">{{ order.customer.Name }}</text>
 			</view>
 		</view>
 
@@ -29,18 +29,18 @@
 					<text class="text-black margin-right-sm">{{ '合计： 300，000' }}</text>
 				</view>
 			</view>
-			<view class="flex padding align-start margin-left-sm" v-for="(item,index) in GoodList" :key="index" style="border-color: black;border-top:1px solid lightgray;">
+			<view class="flex padding align-start margin-left-sm" v-for="(item,index) in order.OrderProducts" :key="index" style="border-color: black;border-top:1px solid lightgray;">
 				<view class="padding-top-sm flex-sub" style="display: flex;flex-direction: column;border-right:1px solid lightgray;">
 					<text class="text-black">{{ index + 1 }}</text>
 				</view>
 				<view class="margin-xs radius flex-sub" style="display: flex;flex-direction: column;">
-					<text class="text-black padding-bottom-sm">{{ item.label }}</text>
-					<text class="text-black">{{ item.name }}</text>
+					<text class="text-black padding-bottom-sm">{{ item.ProductID }}</text>
+					<!-- <text class="text-black">{{ item.Name }}</text> -->
 				</view>
 				<view class="margin-xs padding-left-sm padding-right-sm flex-treble" style="display: flex; flex-direction: column;border-left:1px solid lightgray;border-right:1px solid lightgray;">
-					<text class="text-black">{{ '颜色：' + item.color }}</text>
+					<!-- <text class="text-black">{{ '颜色：' + item.Color? item.Color.Name : '' }}</text> -->
 					<text class="text-black">{{ '数量：' + item.mount }}</text>
-					<text class="text-black">{{ '单价：' + item.price }}</text>
+					<text class="text-black">{{ '单价：' + item.RetailPrice }}</text>
 				</view>
 				<view class="margin-xs radius flex-sub align-end" style="display: flex; flex-direction: column;">
 					<text class="text-black margin-bottom-sm">{{ '总计' }}</text>
@@ -51,11 +51,11 @@
 		<view class="cu-list bg-blue menu shadow">
 			<view class="cu-item padding-sm solid-bottom">
 				<text class="cuIcon-cart text-black padding-left-sm">{{ ' 折前金额' }}</text>
-				<text class="text-black">{{ '30,000' }}</text>
+				<text class="text-black">{{ order.AccountsReceivable }}</text>
 			</view>
 			<view class="cu-item padding-sm solid-bottom">
 				<text class="cuIcon-circlefill text-black padding-left-sm">{{ ' 打折率' }}</text>
-				<text class="text-black">{{ '9 折' }}</text>
+				<text class="text-black">{{ '没有打折' }}</text>
 			</view>
 			<view class="cu-item padding-sm solid-bottom">
 				<text class="cuIcon-cartfill text-black padding-left-sm">{{ ' 折后金额' }}</text>
@@ -63,12 +63,18 @@
 			</view>
 			<view class="cu-item padding-sm">
 				<text class="cuIcon-moneybag text-black padding-left-sm">{{ ' 应收金额' }}</text>
-				<text class="text-black">{{ '27,000' }}</text>
+				<text class="text-black">{{ order.AccountsReceivable }}</text>
 			</view>
 			<view class="cu-item padding-sm">
 				<text class="cuIcon-moneybagfill text-black padding-left-sm">{{ ' 实收金额' }}</text>
-				<text class="text-black">{{ '27,000' }}</text>
+				<text class="text-black">{{ order.ActualAccountsReceivable }}</text>
 			</view>
+		</view>
+		<view class="padding-xl">
+			<button class="cu-btn block bg-blue margin-tb-sm lg" @click="editOrder">
+				<text class="cuIcon-edit"></text> 修改</button>
+			<button class="cu-btn block line-orange lg" @click="deleteOrder">
+				<text class="cuIcon-delete"></text> 删除</button>
 		</view>
     </view>
 </template>
@@ -81,72 +87,13 @@
 				menuArrow: false,
 				menuCard: false,
 				modalName: null,
-				GoodList: [
-					{
-						name: '实木版',
-						category: '地板',
-						label: '兔宝宝',
-						color: '橡木色',
-						mount: 5,
-						price: 200,
-						total: 1000,
-					},
-					{
-						name: '实木版',
-						category: '地板',
-						label: '兔宝宝',
-						color: '桦木色',
-						mount: 3,
-						price: 230,
-						total: 690,
-					},
-					{
-						name: '合成门',
-						category: '木门',
-						label: '橡树',
-						color: '桦木色',
-						mount: 3,
-						price: 230,
-						total: 690,
-					},
-					{
-						name: '合成门',
-						category: '木门',
-						label: '橡树',
-						color: '桦木色',
-						mount: 3,
-						price: 230,
-						total: 690,
-					},
-					{
-						name: '合成门',
-						category: '木门',
-						label: '橡树',
-						color: '桦木色',
-						mount: 3,
-						price: 230,
-						total: 690,
-					},
-					{
-						name: '合成门',
-						category: '木门',
-						label: '橡树',
-						color: '桦木色',
-						mount: 3,
-						price: 230,
-						total: 690,
-					},
-					{
-						name: '合成门',
-						category: '木门',
-						label: '橡树',
-						color: '桦木色',
-						mount: 3,
-						price: 230,
-						total: 690,
-					}
-				]
+				order: null,
+				mode: null, // 开单进入则为0，订单一览则为1
 			}
+		},
+		onLoad(option) {
+			this.mode = option.mode
+			this.order = JSON.parse(decodeURIComponent(option.order))
 		},
 		methods: {
 			showModal(e) {
@@ -156,6 +103,26 @@
 				uni.navigateBack({
 					url: '/pages/order/index'
 				})
+			},
+			editOrder() {
+				console.log(typeof(this.mode))
+				if (this.mode === 0) {
+					let pages = getCurrentPages()
+					let nowPage = pages[pages.length -1] // 当前页实例
+					let prevPage = pages[pages.length -2] // 上一页面实例
+					uni.navigateBack({
+						delta:1 ,// 可以不写，默认值为 1
+					})
+				} 
+				if (this.mode === '0') {
+					uni.navigateTo({
+						url: '/pages/order/buy?mode=1'
+					})
+				}
+
+			},
+			deleteOrder() {
+				
 			}
 		}
 	}

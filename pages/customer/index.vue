@@ -171,7 +171,6 @@
 			},
 			onClick(customer) {
 				let pages = getCurrentPages()
-				console.log(pages.length)
 				let nowPage = pages[pages.length -1] // 当前页实例
 				let prevPage = pages[pages.length -2] // 上一页面实例
 				// 需要返回 上一页的数据 Object
