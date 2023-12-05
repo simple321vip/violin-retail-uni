@@ -198,9 +198,6 @@
 						url: '/pages/order/detail?mode=0&order=' + encodeURIComponent(JSON.stringify(this.order))
 					})
 				})
-				if (res) {
-					
-				}
 			}
 		}
 	}

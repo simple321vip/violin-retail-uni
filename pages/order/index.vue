@@ -41,21 +41,21 @@
 						<view class="action">
 							<text class="cuIcon-title text-gray"></text>
 							<view class="text-cut text-black">
-								{{ item.date }}
+								{{ item[0] }}
 							</view>
 						</view>
 					</view>
-					<view class="cu-item bg-white" @click="getOrderDetail" v-for="(item1,index1) in item.OrderList" :key="index1">
+					<view class="cu-item bg-white" @click="getOrderDetail(item1)" v-for="(item1,index1) in item[1]" :key="index1">
 						<view class="cu-avatar">管</view>
 						<view class="content">
 							<view class="text-black">{{ item1.name }}</view>
 							<view class="text-black text-sm flex">
 								<view class="text-cut">
-									我已天理为凭。
+									{{ item1.Customer.Name }}
 								</view> </view>
 						</view>
 						<view class="action">
-							<view class="text-black">{{ item1.money }}</view>
+							<view class="text-black">{{ item1.AccountsReceivable }}</view>
 						</view>
 					</view>
 				</view>
@@ -66,6 +66,7 @@
 
 <script>
 	import { Request } from "../../api/request.js"
+	import { convertObj } from "../../utils/func.js"
 	export default {
 		name: "order",
 		data() {
@@ -95,47 +96,7 @@
 				modalName: null,
 				avatar:['https://ossweb-img.qq.com/images/lol/web201310/skin/big10001.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big81005.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big25002.jpg','https://ossweb-img.qq.com/images/lol/web201310/skin/big99008.jpg'],
 				tabNav: ['出货', '退货'],
-				DateOrderList: [
-					// {
-					// 	date: '2023-11-01',
-					// 	OrderList: [
-					// 		{
-					// 			name: '管祥玮',
-					// 			money: '1,000'
-					// 		},
-					// 		{
-					// 			name: '许家印',
-					// 			money: '1,500'
-					// 		}
-					// 	]
-					// },
-					// {
-					// 	date: '2023-11-02',
-					// 	OrderList: [
-					// 		{
-					// 			name: '管祥玮',
-					// 			money: '2,000'
-					// 		},
-					// 		{
-					// 			name: '张晓东',
-					// 			money: '3,500'
-					// 		}
-					// 	]
-					// },
-					// {
-					// 	date: '2023-11-03',
-					// 	OrderList: [
-					// 		{
-					// 			name: '小梦',
-					// 			money: '3,000'
-					// 		},
-					// 		{
-					// 			name: '西西里',
-					// 			money: '5,000'
-					// 		}
-					// 	]
-					// },
-				]
+				DateOrderList: []
 			};
 		},
 		created() {
@@ -144,44 +105,53 @@
 				method: 'GET',
 				header: {
 					'Content-Type': 'application/json'
+				},
+				data: {
+					unit: 'month'
 				}
 			}).then(res => {
-				this.OrderList = res.data.Data
-				console.log(res)
+				this.DateOrderList = res.data.Data.reduce((groups, order) => {
+				  const key = order.OrderTime.split("T")[0];
+				  if (!groups[key]) {
+					groups[key] = [];
+				  }
+				  groups[key].push(order);
+				  return groups;
+				}, {})
+				this.DateOrderList = convertObj(this.DateOrderList)
 			}).catch(error => {
 				
 			}).finally(() => {
 				
 			})
-			// if (res) {
-			// 	console.log(res)
-			// 	// this.customers = res.data.Data
-			// }
 		},
 		methods: {
 			tabSelect(e) {
 				this.TabCur = e.currentTarget.dataset.id;
 				this.scrollLeft = (e.currentTarget.dataset.id - 1) * 60
 			},
-			getOrderDetail() {
-				uni.navigateTo({
-					url: '/pages/order/detail'
+			getOrderDetail(order) {
+				let res = Request({
+					url: '/api/v1/order',
+					method: 'GET',
+					header: {
+						'Content-Type': 'application/json'
+					},
+					data: {
+						orderID: order.ID
+					}
+				})
+				res.then(r => {
+					const orderData = r.data.Data
+					uni.navigateTo({
+						// object parameter
+						url: '/pages/order/detail?mode=0&order=' + encodeURIComponent(JSON.stringify(orderData))
+					})
 				})
 			},
 			searchIcon(e) {
 				let key = e.detail.value.toLowerCase();
 				console.log(e)
-				// let list = this.cuIcon;
-				// for (let i = 0; i < list.length; i++) {
-				// 	let a = key;
-				// 	let b = list[i].name.toLowerCase();
-				// 	if (b.search(a) != -1) {
-				// 		list[i].isShow = true
-				// 	} else {
-				// 		list[i].isShow = false
-				// 	}
-				// }
-				// this.cuIcon = list
 			}
 		}
 	}
